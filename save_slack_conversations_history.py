@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Module for saving the slack channel log"""
+"""Tool for saving the slack channel log
+
+This tool uses `python-slackclient`.
+https://github.com/slackapi/python-slackclient
+"""
 
 import argparse
 import json
