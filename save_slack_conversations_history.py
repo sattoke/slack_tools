@@ -65,6 +65,26 @@ def save_conversations_history(client, channel_id, file_name_prefix=""):
             print(json.dumps(resp.data, ensure_ascii=False), file=f)
 
 
+def save_users_list(client, file_name_prefix=""):
+    """Save the users list of the workspace to files.
+
+    Parameters
+    ----------
+    client: slack.web.client.WebClient
+        slack client object.
+    file_name_prefix : str
+        Prefix given to the output file name.
+
+    """
+    resp = client.users_list()
+
+    for i, _ in enumerate(resp):
+        file_name = f"{file_name_prefix}userslist_{i:08}.json"
+
+        with open(file_name, mode="w") as f:
+            print(json.dumps(resp.data, ensure_ascii=False), file=f)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--channel-name",
@@ -76,6 +96,7 @@ if __name__ == "__main__":
                         "The channel ID can be viewed from the URL displayed in the web browser. "
                         "(e.g. https://app.slack.com/client/<team-id>/<channel-id>/details/)")
     parser.add_argument("-p", "--prefix", default="", help="output file name prefix.")
+    parser.add_argument("-u", "--with-users-list", action='store_true', help="enable to output users list as well.")
 
     args = parser.parse_args()
 
@@ -98,3 +119,6 @@ if __name__ == "__main__":
         raise ValueError("`--channel-name` or `--channel-id` is required. ")
 
     save_conversations_history(client, channel_id, args.prefix)
+
+    if args.with_users_list:
+        save_users_list(client, args.prefix)

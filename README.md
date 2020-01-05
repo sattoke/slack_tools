@@ -12,7 +12,7 @@ $ read -sp 'Input your Slack API token: ' SLACK_API_TOKEN; echo && export SLACK_
 ```sh
 $ ./save_slack_conversations_history.py -h
 usage: save_slack_conversations_history.py [-h] [-n CHANNEL_NAME]
-                                           [-i CHANNEL_ID] [-p PREFIX]
+                                           [-i CHANNEL_ID] [-p PREFIX] [-u]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -27,6 +27,8 @@ optional arguments:
                         id>/<channel-id>/details/)
   -p PREFIX, --prefix PREFIX
                         output file name prefix.
+  -u, --with-users-list
+                        enable to output users list as well.
 ```
 
 ## Example
