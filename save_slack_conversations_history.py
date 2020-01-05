@@ -50,7 +50,7 @@ def save_conversations_history(client, channel_id, file_name_prefix=""):
     ----------
     client: slack.web.client.WebClient
         slack client object.
-    channel_name : str
+    channel_id : str
         channel ID of channel-like conversations.
     file_name_prefix : str
         Prefix given to the output file name.
