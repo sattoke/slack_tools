@@ -15,7 +15,17 @@ import slack
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--list-file", default="-", help="list of file IDs to be deleted.")
+    parser.add_argument("-l", "--list-file",
+                        default="-",
+                        help="list of file IDs to be deleted. "
+                        "The default value is '-'. "
+                        "If it is '-', the list is read from the standard input."
+                        "This list assumes a space-separated format "
+                        "with the ID of the file uploaded to slack in the first column. "
+                        "This format follows the output of `list-files.py`. "
+                        "The tool assumes that the user edits the output "
+                        "of `list-files.py` with an editor, etc., "
+                        "and then inputs it into `delete-files.py`.")
 
     args = parser.parse_args()
 
