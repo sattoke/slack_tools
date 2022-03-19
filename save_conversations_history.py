@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Tool for saving the slack channel log
 
-This tool uses `python-slackclient`.
-https://github.com/slackapi/python-slackclient
+This tool uses Python Slack SDK.
+https://github.com/slackapi/python-slack-sdk
 """
 
 import argparse
 import json
 import os
 
-import slack
+import slack_sdk
 
 
 def get_channel_id(client, channel_name):
@@ -17,7 +17,7 @@ def get_channel_id(client, channel_name):
 
     Parameters
     ----------
-    client : slack.web.client.WebClient
+    client : slack_sdk.web.client.WebClient
         slack client object.
     channel_name : str
         channel name of public channel or private channel.
@@ -52,7 +52,7 @@ def save_conversations_history(client, channel_id, file_name_prefix=""):
 
     Parameters
     ----------
-    client: slack.web.client.WebClient
+    client: slack_sdk.web.client.WebClient
         slack client object.
     channel_id : str
         channel ID of channel-like conversations.
@@ -74,7 +74,7 @@ def save_users_list(client, file_name_prefix=""):
 
     Parameters
     ----------
-    client: slack.web.client.WebClient
+    client: slack_sdk.web.client.WebClient
         slack client object.
     file_name_prefix : str
         Prefix given to the output file name.
@@ -113,7 +113,7 @@ if __name__ == "__main__":
               "    $ read -sp 'Input your Slack API token: ' SLACK_API_TOKEN; echo && export SLACK_API_TOKEN")
         exit(1)
 
-    client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
+    client = slack_sdk.WebClient(token=os.environ["SLACK_API_TOKEN"])
 
     if args.channel_name:
         channel_id = get_channel_id(client, args.channel_name)

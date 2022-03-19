@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Tool for deliting the uploaded files
 
-This tool uses `python-slackclient`.
-https://github.com/slackapi/python-slackclient
+This tool uses Python Slack SDK.
+https://github.com/slackapi/python-slack-sdk
 """
 
 import argparse
@@ -10,7 +10,7 @@ import json
 import os
 import sys
 
-import slack
+import slack_sdk
 
 
 if __name__ == "__main__":
@@ -38,7 +38,7 @@ if __name__ == "__main__":
               "    $ read -sp 'Input your Slack API token: ' SLACK_API_TOKEN; echo && export SLACK_API_TOKEN")
         exit(1)
 
-    client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
+    client = slack_sdk.WebClient(token=os.environ["SLACK_API_TOKEN"])
 
     def delete_from(list_file):
         for line in list_file:
