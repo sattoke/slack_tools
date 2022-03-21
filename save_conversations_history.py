@@ -242,8 +242,12 @@ def save_users_list(client, file_name_prefix=""):
         Prefix given to the output file name.
 
     """
+    team_info = get_team_info(client)
+    team_domain = team_info["domain"]
+    os.makedirs(team_domain, exist_ok=True)
     file_name = "users_list.json"
-    with open(file_name, mode="w") as f:
+    file_path = os.path.join(team_domain, file_name)
+    with open(file_path, mode="w") as f:
         print(json.dumps(get_users_list(client), ensure_ascii=False), file=f)
 
 
