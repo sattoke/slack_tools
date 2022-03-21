@@ -10,7 +10,8 @@ import copy
 import json
 import os
 
-import slack_sdk
+from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
+from slack_sdk.web import WebClient
 
 
 def get_team_info(client):
@@ -277,7 +278,9 @@ if __name__ == "__main__":
               "    $ read -sp 'Input your Slack API token: ' SLACK_API_TOKEN; echo && export SLACK_API_TOKEN")
         exit(1)
 
-    client = slack_sdk.WebClient(token=os.environ["SLACK_API_TOKEN"])
+    client = WebClient(token=os.environ["SLACK_API_TOKEN"])
+    rate_limit_handler = RateLimitErrorRetryHandler(max_retry_count=1)
+    client.retry_handlers.append(rate_limit_handler)
 
     if args.channel_name:
         channel_id = get_channel_id(client, args.channel_name)
