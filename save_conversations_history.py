@@ -46,9 +46,13 @@ def save_team_info(client, file_name_prefix=""):
         Prefix given to the output file name.
 
     """
+    team_info = get_team_info(client)
+    team_domain = team_info["domain"]
+    os.makedirs(team_domain, exist_ok=True)
     file_name = "team_info.json"
-    with open(file_name, mode="w") as f:
-        print(json.dumps(get_team_info(client), ensure_ascii=False), file=f)
+    file_path = os.path.join(team_domain, file_name)
+    with open(file_path, mode="w") as f:
+        print(json.dumps(team_info, ensure_ascii=False), file=f)
 
 
 def get_conversations_list(client):
@@ -88,8 +92,12 @@ def save_conversations_list(client, file_name_prefix=""):
         Prefix given to the output file name.
 
     """
+    team_domain = get_team_info(client)["domain"]
+    os.makedirs(team_domain, exist_ok=True)
+
     file_name = "conversations_list.json"
-    with open(file_name, mode="w") as f:
+    file_path = os.path.join(team_domain, file_name)
+    with open(file_path, mode="w") as f:
         print(json.dumps(get_conversations_list(client), ensure_ascii=False), file=f)
 
 
@@ -125,6 +133,50 @@ def get_channel_id(client, channel_name):
     return channel_id
 
 
+def get_conversation_name(client, conversation_id):
+    """Get the name of the conversation.
+
+    This function returns the name of the conversation partner
+    if the specified conversation type is im,
+    otherwise the name of the conversation.
+
+    Parameters
+    ----------
+    client : slack_sdk.web.client.WebClient
+        slack client object.
+    conversation_id : str
+        conversation ID.
+
+    Returns
+    -------
+    conversation_name : str
+        the name of the conversation.
+
+    Raises
+    ------
+    ValueError
+        occur if the specified channel is not found.
+
+    """
+    for c in get_conversations_list(client):
+        if c.get("id") == conversation_id:
+            if c.get("is_im"):
+                for u in get_users_list(client):
+                    if u["id"] == c["user"]:
+                        conversation_name = u["name"]
+                        break
+                else:
+                    raise ValueError("The user corresponding to the specified im-type conversation ID could not be found.")
+            else:
+                conversation_name = c["name"]
+
+            break
+    else:
+        raise ValueError("The specified conversation was not found.")
+
+    return conversation_name
+
+
 def save_conversations_history(client, channel_id, file_name_prefix=""):
     """Save the conversations specified by the channel ID to files.
 
@@ -138,12 +190,18 @@ def save_conversations_history(client, channel_id, file_name_prefix=""):
         Prefix given to the output file name.
 
     """
+    team_domain = get_team_info(client)["domain"]
+    conversation_name = get_conversation_name(client, channel_id)
+    dir_path = os.path.join(team_domain, conversation_name)
+    os.makedirs(dir_path, exist_ok=True)
+
     resp = client.conversations_history(channel=channel_id)
 
     for i, _ in enumerate(resp):
         file_name = f"{file_name_prefix}{i:08}.json"
+        file_path = os.path.join(dir_path, file_name)
 
-        with open(file_name, mode="w") as f:
+        with open(file_path, mode="w") as f:
             print(json.dumps(resp.data, ensure_ascii=False), file=f)
 
 
