@@ -13,6 +13,44 @@ import os
 import slack_sdk
 
 
+def get_team_info(client):
+    """Get team information
+
+    Parameters
+    ----------
+    client : slack_sdk.web.client.WebClient
+        slack client object.
+
+    Returns
+    -------
+    team_info : dict
+        team information
+
+    """
+    if "_info" not in dir(get_team_info):
+        resp = client.team_info()
+
+        get_team_info._info = resp.data["team"]
+
+    return get_team_info._info
+
+
+def save_team_info(client, file_name_prefix=""):
+    """Save the team information to files.
+
+    Parameters
+    ----------
+    client: slack_sdk.web.client.WebClient
+        slack client object.
+    file_name_prefix : str
+        Prefix given to the output file name.
+
+    """
+    file_name = "team_info.json"
+    with open(file_name, mode="w") as f:
+        print(json.dumps(get_team_info(client), ensure_ascii=False), file=f)
+
+
 def get_conversations_list(client):
     """Get conversations_list.
 
@@ -142,6 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--prefix", default="", help="output file name prefix.")
     parser.add_argument("-u", "--with-users-list", action='store_true', help="enable to output users list as well.")
     parser.add_argument("-c", "--with-conversations-list", action='store_true', help="enable to output conversations list as well.")
+    parser.add_argument("-t", "--with-team-info", action='store_true', help="enable to output team info as well.")
 
     args = parser.parse_args()
 
@@ -170,3 +209,6 @@ if __name__ == "__main__":
 
     if args.with_conversations_list:
         save_conversations_list(client, args.prefix)
+
+    if args.with_team_info:
+        save_team_info(client, args.prefix)
