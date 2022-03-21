@@ -6,10 +6,53 @@ https://github.com/slackapi/python-slack-sdk
 """
 
 import argparse
+import copy
 import json
 import os
 
 import slack_sdk
+
+
+def get_conversations_list(client):
+    """Get conversations_list.
+
+    Parameters
+    ----------
+    client : slack_sdk.web.client.WebClient
+        slack client object.
+
+    Returns
+    -------
+    conversations_list : dict
+        conversations_list
+
+    """
+    if "_list" not in dir(get_conversations_list):
+        resp = client.conversations_list(types="public_channel,private_channel,mpim,im")
+
+        _list = []
+        for _ in resp:
+            _list.extend(copy.copy(resp.data["channels"]))
+
+        get_conversations_list._list = _list
+
+    return get_conversations_list._list
+
+
+def save_conversations_list(client, file_name_prefix=""):
+    """Save the users list of the workspace to files.
+
+    Parameters
+    ----------
+    client: slack_sdk.web.client.WebClient
+        slack client object.
+    file_name_prefix : str
+        Prefix given to the output file name.
+
+    """
+    file_name = "conversations_list.json"
+    with open(file_name, mode="w") as f:
+        print(json.dumps(get_conversations_list(client), ensure_ascii=False), file=f)
 
 
 def get_channel_id(client, channel_name):
@@ -33,13 +76,10 @@ def get_channel_id(client, channel_name):
         occur if the specified channel is not found.
 
     """
-    resp = client.conversations_list(types="public_channel,private_channel")
-
-    for _ in resp:
-        channel_ids = [x["id"] for x in resp["channels"] if x["name"] == channel_name]
-
-        if len(channel_ids) >= 1:
-            channel_id = channel_ids[0]
+    # [NOTE] Conversations other than public_channel and private_channel do not have a "name" key.
+    for c in get_conversations_list(client):
+        if c.get("name") == channel_name:
+            channel_id = c["id"]
             break
     else:
         raise ValueError("the specified channel_name was not found.")
@@ -101,6 +141,7 @@ if __name__ == "__main__":
                         "(e.g. https://app.slack.com/client/<team-id>/<channel-id>/details/)")
     parser.add_argument("-p", "--prefix", default="", help="output file name prefix.")
     parser.add_argument("-u", "--with-users-list", action='store_true', help="enable to output users list as well.")
+    parser.add_argument("-c", "--with-conversations-list", action='store_true', help="enable to output conversations list as well.")
 
     args = parser.parse_args()
 
@@ -126,3 +167,6 @@ if __name__ == "__main__":
 
     if args.with_users_list:
         save_users_list(client, args.prefix)
+
+    if args.with_conversations_list:
+        save_conversations_list(client, args.prefix)
