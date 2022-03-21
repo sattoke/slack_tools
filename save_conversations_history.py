@@ -147,6 +147,32 @@ def save_conversations_history(client, channel_id, file_name_prefix=""):
             print(json.dumps(resp.data, ensure_ascii=False), file=f)
 
 
+def get_users_list(client):
+    """Get users list.
+
+    Parameters
+    ----------
+    client : slack_sdk.web.client.WebClient
+        slack client object.
+
+    Returns
+    -------
+    conversations_list : dict
+        users list
+
+    """
+    if "_list" not in dir(get_users_list):
+        resp = client.users_list()
+
+        _list = []
+        for _ in resp:
+            _list.extend(copy.copy(resp.data["members"]))
+
+        get_users_list._list = _list
+
+    return get_users_list._list
+
+
 def save_users_list(client, file_name_prefix=""):
     """Save the users list of the workspace to files.
 
@@ -158,13 +184,9 @@ def save_users_list(client, file_name_prefix=""):
         Prefix given to the output file name.
 
     """
-    resp = client.users_list()
-
-    for i, _ in enumerate(resp):
-        file_name = f"{file_name_prefix}userslist_{i:08}.json"
-
-        with open(file_name, mode="w") as f:
-            print(json.dumps(resp.data, ensure_ascii=False), file=f)
+    file_name = "users_list.json"
+    with open(file_name, mode="w") as f:
+        print(json.dumps(get_users_list(client), ensure_ascii=False), file=f)
 
 
 if __name__ == "__main__":
